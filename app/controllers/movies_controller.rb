@@ -11,7 +11,7 @@ class MoviesController < ApplicationController
   end
 
   def index
-    if params[:column] == "movie"
+    if params[:column] == "movies"
       @movies = Movie.order(:title).all
       @css_valid = 1
     elsif params[:column] == "releasedate"
