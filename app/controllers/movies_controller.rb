@@ -9,22 +9,30 @@ class MoviesController < ApplicationController
     @movie = Movie.find(id) # look up movie by unique ID
     # will render app/views/movies/show.<extension> by default
   end
-
- def index
-   if session[:column] == nil or (params[:column]!=session[:column] and params[:column]!=nil)
+  
+  def params_support
+    if session[:column] == nil or (params[:column]!=session[:column] and params[:column]!=nil)
       if params[:column] == nil and session[:column] == nil
         session[:column] = ""
       else
         session[:column] = params[:column]
       end
-   end
-  if session[:ratings] == nil or params[:commit]!=nil
+    end
+  end
+  
+  def session_support
+    if session[:ratings] == nil or params[:commit]!=nil
       if params[:ratings] == nil
         session[:ratings] = []
       else 
         session[:ratings] = params[:ratings]
       end
+    end
   end
+
+ def index
+  params_support
+  session_support
   @all_ratings = Movie.uniq.pluck(:rating)
   @boxes = session[:ratings]
   if session[:column] == "rel_date"
@@ -48,7 +56,7 @@ class MoviesController < ApplicationController
       @movies = Movie.all
     end
   end
-end
+ end
 
   def new
     # default: render 'new' template
