@@ -10,36 +10,45 @@ class MoviesController < ApplicationController
     # will render app/views/movies/show.<extension> by default
   end
 
-  def index
-    @all_ratings = Movie.uniq.pluck(:rating)
-    if params[:ratings] == nil
-      @boxes = []
-    else 
-      @boxes = params[:ratings]
-    end
-    
-    if params[:column] == "rel_date"
-      if params[:ratings].blank?
-        @movies = Movie.order(:release_date).all
+ def index
+   if session[:column] == nil or (params[:column]!=session[:column] and params[:column]!=nil)
+      if params[:column] == nil and session[:column] == nil
+        session[:column] = ""
       else
-        @movies = Movie.order(:release_date).select {|i| @boxes.include?(i.rating)?true:false}
+        session[:column] = params[:column]
       end
-      @css_valid = 0
-    elsif params[:column] == "movie_names"
-      if params[:ratings].blank?
-        @movies = Movie.order(:title).all
-      else
-        @movies = Movie.order(:title).select {|i| @boxes.include?(i.rating)?true:false}
-      end
-      @css_valid = 1
-    else 
-      if not params[:ratings].blank?
-        @movies = Movie.all.select {|i| @boxes.include?(i.rating)?true:false}
+   end
+  if session[:ratings] == nil or params[:commit]!=nil
+      if params[:ratings] == nil
+        session[:ratings] = []
       else 
-        @movies = Movie.all
+        session[:ratings] = params[:ratings]
       end
+  end
+  @all_ratings = Movie.uniq.pluck(:rating)
+  @boxes = session[:ratings]
+  if session[:column] == "rel_date"
+    if session[:ratings].blank?
+      @movies = Movie.order(:release_date).all
+    else
+      @movies = Movie.order(:release_date).select {|i| @boxes.include?(i.rating)?true:false}
+    end
+    @css_valid = 0
+  elsif session[:column] == "movie_names"
+    if session[:ratings].blank?
+      @movies = Movie.order(:title).all
+    else
+      @movies = Movie.order(:title).select {|i| @boxes.include?(i.rating)?true:false}
+    end
+    @css_valid = 1
+  else 
+    if not session[:ratings].blank?
+      @movies = Movie.all.select {|i| @boxes.include?(i.rating)?true:false}
+    else 
+      @movies = Movie.all
     end
   end
+end
 
   def new
     # default: render 'new' template
