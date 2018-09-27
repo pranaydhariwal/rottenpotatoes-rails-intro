@@ -11,14 +11,33 @@ class MoviesController < ApplicationController
   end
 
   def index
+    @all_ratings = Movie.uniq.pluck(:rating)
+    if params[:ratings] == nil
+      @boxes = []
+    else 
+      @boxes = params[:ratings]
+    end
+    
     if params[:column] == "rel_date"
-      @movies = Movie.order(:release_date).all
+      if params[:ratings].blank?
+        @movies = Movie.order(:release_date).all
+      else
+        @movies = Movie.order(:release_date).select {|i| @boxes.include?(i.rating)?true:false}
+      end
       @css_valid = 0
     elsif params[:column] == "movie_names"
-      @movies = Movie.order(:title).all
+      if params[:ratings].blank?
+        @movies = Movie.order(:title).all
+      else
+        @movies = Movie.order(:title).select {|i| @boxes.include?(i.rating)?true:false}
+      end
       @css_valid = 1
     else 
-      @movies = Movie.all
+      if not params[:ratings].blank?
+        @movies = Movie.all.select {|i| @boxes.include?(i.rating)?true:false}
+      else 
+        @movies = Movie.all
+      end
     end
   end
 
